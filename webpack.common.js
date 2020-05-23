@@ -20,22 +20,14 @@ module.exports = {
     ]
   },
 
-  devtool: 'inline-source-map',
-
   resolve: {
     extensions: [ '.ts', '.tsx', '.js' ]
   },
 
   output: {
     filename: 'app.bundle.js',
+    chunkFilename: 'vendors.app.bundle.js',
     path: path.resolve(__dirname, OUTPUT_DIR),
-  },
-
-  mode: 'development',
-
-  devServer: {
-    contentBase: path.resolve(__dirname, OUTPUT_DIR),
-    https: false
   },
 
   plugins: [

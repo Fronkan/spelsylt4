@@ -2,11 +2,11 @@ import * as Phaser from 'phaser'
 
 export class Player{
     private scene: Phaser.Scene;
-    private go: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
+    go: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
 
     constructor(scene: Phaser.Scene){
         this.scene = scene;
-        let go = this.scene.add.rectangle(400, 400, 100, 100, 0xFFFFFF);
+        let go = this.scene.add.rectangle(200, 200, 30, 30, 0xFFFFFF);
         this.scene.physics.add.existing(go);
         this.go = go as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
     }
@@ -28,7 +28,7 @@ export class Player{
           } else {
             this.go.body.setVelocityX(0);
           }
-          console.log(this.getPos());
+          // console.log(this.getPos());
     }
 
     getPos(){

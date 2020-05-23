@@ -1,9 +1,9 @@
 import * as Phaser from 'phaser';
-import { GameScene } from './scene1';
+import { EditorScene } from './editorscene';
 
 
 const gameConfig: Phaser.Types.Core.GameConfig = {
-  title: 'Supply Run',
+  title: 'Edior',
  
   type: Phaser.AUTO,
  
@@ -24,7 +24,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
  
   parent: 'game',
   // backgroundColor: '#000000',
-  scene: GameScene
+  scene: EditorScene
 };
 
 export const game = new Phaser.Game(gameConfig);
