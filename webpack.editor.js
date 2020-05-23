@@ -8,12 +8,20 @@ module.exports = merge(common, {
   entry: {
     app: './src/enemyeditor.ts'
   },
-    mode: 'development',
-    devtool: 'inline-source-map',
+  mode: 'development',
+  devtool: 'inline-source-map',
 
-    devServer: {
-        contentBase: path.resolve(__dirname, OUTPUT_DIR),
-        https: false,
-        port: 8081,
-    }
+  plugins:[ 
+    new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, "plugins","**","*"),
+        to: path.resolve(__dirname, OUTPUT_DIR)
+      }
+  ])],
+
+  devServer: {
+      contentBase: path.resolve(__dirname, OUTPUT_DIR),
+      https: false,
+      port: 8081,
+  }
 })
