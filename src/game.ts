@@ -7,10 +7,6 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
  
   type: Phaser.AUTO,
  
-  // scale: {
-  //   width: window.innerWidth,
-  //   height: window.innerHeight,
-  // },
   physics: {
     default: 'arcade',
     arcade: {
@@ -18,8 +14,10 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     },
   },
   scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    mode: Phaser.Scale.FIT, //Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: window.innerWidth,
+    height: window.innerHeight,
   },
  
   parent: 'game',

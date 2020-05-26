@@ -4,6 +4,7 @@ import { Enemy } from './enemy';
 export class Player{
     private scene: Phaser.Scene;
     private infected: boolean = false;
+    private speed: number = 400;
     go: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
 
     constructor(scene: Phaser.Scene){
@@ -20,17 +21,17 @@ export class Player{
       }
       const cursorKeys = this.scene.input.keyboard.createCursorKeys();
       if (cursorKeys.up.isDown) {
-          this.go.body.setVelocityY(-500);
+          this.go.body.setVelocityY(-this.speed);
         } else if (cursorKeys.down.isDown) {
-          this.go.body.setVelocityY(500);
+          this.go.body.setVelocityY(this.speed);
         } else {
           this.go.body.setVelocityY(0);
         }
         
         if (cursorKeys.right.isDown) {
-          this.go.body.setVelocityX(500);
+          this.go.body.setVelocityX(this.speed);
         } else if (cursorKeys.left.isDown) {
-          this.go.body.setVelocityX(-500);
+          this.go.body.setVelocityX(-this.speed);
         } else {
           this.go.body.setVelocityX(0);
         }

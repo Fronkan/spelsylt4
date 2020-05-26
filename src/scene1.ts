@@ -10,10 +10,14 @@ const sceneConfig: Phaser.Types.Scenes.SettingsConfig = {
 const WorldSettings = {
     enemyInfectionProba: 60,
     enemyPaths:[
-        "start_in_store1",
-        "start_in_store2",
-        "start_in_store3"
-    ]
+        {name:"path0", duration:40000},
+        {name:"path1", duration:20000},
+        {name:"path2", duration:50000},
+        {name:"path3", duration:50000},
+        {name:"path4", duration:40000},
+        {name:"path5", duration:50000},
+    ],
+    numCollectables:4,
 }
   
 export class GameScene extends Phaser.Scene {
@@ -21,15 +25,18 @@ export class GameScene extends Phaser.Scene {
     enemies: Enemy[] = [];
     map: Phaser.Tilemaps.Tilemap;
     storeTiles: Phaser.Tilemaps.Tileset;
+    objectTiles: Phaser.Tilemaps.Tileset;
     walls: Phaser.Tilemaps.StaticTilemapLayer;
     floor: Phaser.Tilemaps.StaticTilemapLayer;
+    collectables: Phaser.Tilemaps.DynamicTilemapLayer;
 
 preload() {
     this.load.tilemapTiledJSON("storeMap","assets/store_map.json");
     this.load.image("storeTiles", "assets/store_tiles.png");
     this.load.image("enemy", "assets/enemy.png");
+    this.load.image("objects","assets/objects.png")
     WorldSettings.enemyPaths.forEach(
-        p => this.load.json(p, `assets/paths/${p}.json`)
+        p => this.load.json(p.name, `assets/paths/${p.name}.json`)
     );
 
         
@@ -45,11 +52,26 @@ public create() {
     this.floor = this.map.createStaticLayer("floor", this.storeTiles);
     this.walls = this.map.createStaticLayer("walls", this.storeTiles);
     this.walls.setCollisionBetween(1,1000, true, true);
+    this.objectTiles = this.map.addTilesetImage("objects", "objects");
+    this.collectables = this.map.createDynamicLayer("objects", this.objectTiles);
+    this.collectables.setCollisionBetween(1, 1000, true, true);
+
+
+    // this.collectables = this.map.getObjectLayer("objects").objects;
+    // this.collectables.forEach(
+    //     obj =>{
+    //         obj.
+
+    //     }
+    // )
+    // this.floor.setScale(0.5,0.5);
+    // this.walls.setScale(0.5,0.5);
+
     let rnd = new Phaser.Math.RandomDataGenerator();
     this.enemies = WorldSettings.enemyPaths.map(
         path => {
             const isInfected = this.isEnemyInfected(rnd, WorldSettings.enemyInfectionProba);
-            let enemy = new Enemy(this, path, isInfected);
+            let enemy = new Enemy(this, path.name, isInfected, path.duration, rnd.realInRange(0.1,0.7));
             return enemy
     });
 
@@ -61,6 +83,9 @@ public create() {
     //     }
     // )
     this.player = new Player(this);
+    this.scale.setGameSize(this.floor.displayWidth,this.floor.displayHeight);
+    this.physics.world.setBounds(0, 0, this.floor.displayWidth, this.floor.displayHeight);
+    this.player.go.body.setCollideWorldBounds(true);
 }
 
 isEnemyInfected(rnd: Phaser.Math.RandomDataGenerator, prob: integer){
@@ -75,6 +100,7 @@ public update(dt) {
     this.enemies = this.enemies.filter( enemy => !enemy.isDestroyed);
     this.enemies.forEach(
         enemy => {
+            enemy.update();
             if (this.physics.world.overlap(this.player.go, enemy.go)){
                 if(this.player.infectionCheck(enemy)){
                     this.add.text(300, 300, "Game Over", {fontSize: '64px'});
@@ -87,5 +113,13 @@ public update(dt) {
                 }
             }
     });
+    this.physics.world.collide(
+        this.player.go,
+        this.collectables,
+        (playerGo, collectable)  => {
+            // @ts-ignore
+            this.collectables.removeTileAt(collectable.x, collectable.y)
+        }
+    )
 }
 }
