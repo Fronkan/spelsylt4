@@ -3,19 +3,20 @@ import { Enemy } from './enemy';
 
 export class Player{
     private scene: Phaser.Scene;
-    private infected: boolean = false;
     private speed: number = 400;
+    disabled: boolean = false;
     go: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
 
-    constructor(scene: Phaser.Scene){
+    constructor(scene: Phaser.Scene, depth:integer=1){
         this.scene = scene;
         let go = this.scene.add.rectangle(200, 200, 30, 30, 0xFFFFFF);
+        go.setDepth(depth);
         this.scene.physics.add.existing(go);
         this.go = go as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
     }
 
     update(dt){
-      if(this.infected){
+      if(this.disabled){
         this.go.body.setVelocity(0);
         return;
       }
@@ -39,7 +40,7 @@ export class Player{
 
     infectionCheck(enemy: Enemy){
       if (enemy.isInfected){
-        this.infected = true;
+        this.disabled = true;
         return true;
       }
       return false;
