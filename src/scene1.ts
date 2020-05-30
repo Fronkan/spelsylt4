@@ -39,6 +39,8 @@ export class GameScene extends Phaser.Scene {
     walls: Phaser.Tilemaps.StaticTilemapLayer;
     collectables: Phaser.Tilemaps.DynamicTilemapLayer;
     goal: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
+    collectablesLeft: integer;
+    readonly debugMode: boolean = false;
 
 preload() {
     this.load.tilemapTiledJSON("storeMap","assets/store_map.json");
@@ -71,6 +73,7 @@ public restart() {
 
 private setUp(){
     this.player = new Player(this);
+    this.collectablesLeft = WorldSettings.numCollectables;
     this.player.go.body.setCollideWorldBounds(true);
     let map = this.make.tilemap({key: "storeMap"});
     const storeSize = this.createStore(map, "storeTiles");
@@ -88,7 +91,7 @@ private createEnemies(enemyConfigs: EnemyConfig[]){
     let rnd = new Phaser.Math.RandomDataGenerator();
     this.enemies = WorldSettings.enemyConfigs.map(
         enemyConf => {
-            return new Enemy(this, enemyConf.name, enemyConf.isInfected, enemyConf.duration, rnd.realInRange(0.1,0.7));
+            return new Enemy(this, enemyConf.name, enemyConf.isInfected, enemyConf.duration, rnd.realInRange(0.1,0.7), this.debugMode);
         }
     );
 }
@@ -115,14 +118,14 @@ private addStartAndGoal(map: Phaser.Tilemaps.Tilemap, objectLayer: number, start
     const eventLayer: Phaser.Tilemaps.ObjectLayer = map.objects[objectLayer];
     eventLayer.objects.forEach(
         obj => {
-            console.log(obj);
+            const color = this.debugMode ? 0xFFFFFF: undefined; 
             if(obj.name == start){
-                let go = this.add.rectangle(obj.x+25, obj.y+10, obj.width ,obj.height, 0xFFFFFF);
+                let go = this.add.rectangle(obj.x+25, obj.y+10, obj.width ,obj.height, color);
                 const center = go.getCenter();
                 this.player.go.setPosition(center.x, center.y)
             }
             if(obj.name == goal){
-                let go = this.add.rectangle(obj.x+200, obj.y+50, obj.width, obj.height, 0xFFFFFF);
+                let go = this.add.rectangle(obj.x+200, obj.y+50, obj.width, obj.height, color);
                 this.physics.add.existing(go);
                 this.goal = go as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
             }
@@ -132,11 +135,10 @@ private addStartAndGoal(map: Phaser.Tilemaps.Tilemap, objectLayer: number, start
 
 
 public update(dt: number) {
-    console.log(this.isRunning);
     this.player.update(dt);
     this.physics.world.collide(this.player.go, this.walls);
+    
     this.enemies = this.enemies.filter( enemy => !enemy.isDestroyed);
-    this.physics.overlap(this.player.go, this.goal, () => this.restartScreen("Victory"));
     this.enemies.forEach(
         enemy => {
             enemy.update();
@@ -149,16 +151,26 @@ public update(dt: number) {
                 }
             }
     });
+    
     this.physics.world.collide(
         this.player.go,
         this.collectables,
         (playerGo, collectable)  => {
             // @ts-ignore
             this.collectables.removeTileAt(collectable.x, collectable.y)
+            this.collectablesLeft--;
         }
     )
-}
 
+    this.physics.overlap(this.player.go, this.goal, 
+        () => {
+            if(this.collectablesLeft == 0){
+                this.restartScreen("Victory");
+            }
+        }
+    );
+    
+}
 
 private restartScreen(title: string) {
     this.isRunning = false;
