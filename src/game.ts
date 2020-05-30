@@ -1,5 +1,6 @@
 import * as Phaser from 'phaser';
-import { GameScene } from './scene1';
+import { StoreScene } from './store_scene';
+import { MainMenuScene } from './main_menu_scene';
 
 
 const gameConfig: Phaser.Types.Core.GameConfig = {
@@ -14,7 +15,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     },
   },
   scale: {
-    mode: Phaser.Scale.FIT, //Phaser.Scale.FIT,
+    mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: window.innerWidth,
     height: window.innerHeight,
@@ -22,7 +23,10 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
  
   parent: 'game',
   // backgroundColor: '#000000',
-  scene: GameScene
+  scene: [
+    MainMenuScene,
+    StoreScene
+  ]
 };
 
 export const game = new Phaser.Game(gameConfig);

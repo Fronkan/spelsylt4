@@ -30,7 +30,7 @@ const WorldSettings = {
     numCollectables:4,
 }
   
-export class GameScene extends Phaser.Scene {
+export class StoreScene extends Phaser.Scene {
     isRunning: boolean;
     player: Player;
     enemies: Enemy[] = [];
@@ -74,13 +74,14 @@ public restart() {
 private setUp(){
     this.player = new Player(this);
     this.collectablesLeft = WorldSettings.numCollectables;
-    this.player.go.body.setCollideWorldBounds(true);
     let map = this.make.tilemap({key: "storeMap"});
     const storeSize = this.createStore(map, "storeTiles");
     this.addStoreItems(map, "objects", "objects");
     this.addStartAndGoal(map, 0);
-    this.scale.setGameSize(storeSize.width, storeSize.height);
+    // this.scale.setGameSize(storeSize.width, storeSize.height);
     this.physics.world.setBounds(0, 0, storeSize.width, storeSize.height);
+    this.player.go.body.setCollideWorldBounds(true);
+    this.cameras.main.startFollow(this.player.go);
     
     this.createEnemies(WorldSettings.enemyConfigs);
     this.isRunning = true;
@@ -173,25 +174,41 @@ public update(dt: number) {
 }
 
 private restartScreen(title: string) {
+    console.log(this);
     this.isRunning = false;
     this.player.disabled = true;
+    const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+    const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
     this.add.text(
-        this.cameras.main.centerX - 200,
-        this.cameras.main.centerY- 200,
+        screenCenterX-200,
+        screenCenterY-200,
         title,
-        {fontSize: '64px'}
+        {fontSize: '64px',  boundsAlignH: "center", boundsAlignV: "middle", align:"center"}
     );
     const restartBtn = this.add.text(
-        this.cameras.main.centerX-150,
-        this.cameras.main.centerY-100,
+        screenCenterX-180,
+        screenCenterY-100,
         'Restart Game',
-        { fill: '#0f0', fontSize:'30px',  boundsAlignH: "center", boundsAlignV: "middle" }
+        { fill: '#0f0', fontSize:'30px', boundsAlignH: "center", boundsAlignV: "middle", align:"center"}
     );
     restartBtn
         .setInteractive()
         .on("pointerover", () => restartBtn.setStyle({ fill: '#ff0'}))
         .on('pointerout', () =>  restartBtn.setStyle({ fill: '#0f0'}))
         .on('pointerdown', () =>  this.restart());
+
+
+        const menuButton = this.add.text(
+            screenCenterX-180,
+            screenCenterY,
+            'Main Menu',
+            { fill: '#0f0', fontSize:'30px',  boundsAlignH: "center", boundsAlignV: "middle", align:"center"}
+        );
+        menuButton
+            .setInteractive()
+            .on("pointerover", () => menuButton.setStyle({ fill: '#ff0'}))
+            .on('pointerout', () =>  menuButton.setStyle({ fill: '#0f0'}))
+            .on('pointerdown', () =>  this.scene.start("MainMenu"));
     
 }
 
