@@ -18,16 +18,23 @@ class EnemyConfig{
 }
 
 const WorldSettings = {
-    enemyInfectionProba: 60,
     enemyConfigs:[
-        new EnemyConfig("path0", 40000, true),
-        new EnemyConfig("path1", 20000),
-        new EnemyConfig("path2", 50000),
-        new EnemyConfig("path3", 50000),
-        new EnemyConfig("path4", 40000),
-        new EnemyConfig("path5", 50000)
+        new EnemyConfig("path0",  38000),
+        new EnemyConfig("path1",  20000),
+        new EnemyConfig("path2",  25000),
+        new EnemyConfig("path3",  50000),
+        new EnemyConfig("path4",  40000),
+        new EnemyConfig("path5",  50000),
+        new EnemyConfig("path6",  40000),
+        new EnemyConfig("path7",  30000),
+        new EnemyConfig("path8",  40000),
+        new EnemyConfig("path9",  55000),
+        new EnemyConfig("path10", 20000),
+        new EnemyConfig("path11", 40000),
     ],
     numCollectables:4,
+    numInfected: 4,
+    debug: false,
 }
   
 export class StoreScene extends Phaser.Scene {
@@ -40,7 +47,7 @@ export class StoreScene extends Phaser.Scene {
     collectables: Phaser.Tilemaps.DynamicTilemapLayer;
     goal: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
     collectablesLeft: integer;
-    readonly debugMode: boolean = false;
+    readonly debugMode: boolean;
 
 preload() {
     this.load.tilemapTiledJSON("storeMap","assets/store_map.json");
@@ -57,6 +64,7 @@ preload() {
 
 constructor() {
     super(sceneConfig);
+    this.debugMode = WorldSettings.debug;
 }
 
 
@@ -90,9 +98,15 @@ private setUp(){
 
 private createEnemies(enemyConfigs: EnemyConfig[]){
     let rnd = new Phaser.Math.RandomDataGenerator();
-    this.enemies = WorldSettings.enemyConfigs.map(
+    const shuffledEnemies = rnd.shuffle(WorldSettings.enemyConfigs);
+    let hasInfected = 0;
+    this.enemies = shuffledEnemies.map(
         enemyConf => {
-            return new Enemy(this, enemyConf.name, enemyConf.isInfected, enemyConf.duration, rnd.realInRange(0.1,0.7), this.debugMode);
+            enemyConf.isInfected = hasInfected < WorldSettings.numInfected;
+            hasInfected++;
+            const positionOnPath = rnd.realInRange(0.1,0.3);
+            const infectionRange = 60;
+            return new Enemy(this, enemyConf.name, enemyConf.isInfected, enemyConf.duration, positionOnPath, this.debugMode, infectionRange);
         }
     );
 }
@@ -165,51 +179,56 @@ public update(dt: number) {
 
     this.physics.overlap(this.player.go, this.goal, 
         () => {
-            if(this.collectablesLeft == 0){
+            if(this.collectablesLeft == 0 && this.isRunning){
                 this.restartScreen("Victory");
             }
         }
     );
+
+    const esc = this.input.keyboard.addKey("esc");
+    if (esc.isDown && this.isRunning) {
+        this.restartScreen("Infected");
+    }
     
 }
 
 private restartScreen(title: string) {
-    console.log(this);
     this.isRunning = false;
     this.player.disabled = true;
     const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
     const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2;
     this.add.text(
-        screenCenterX-200,
+        screenCenterX,
         screenCenterY-200,
         title,
-        {fontSize: '64px',  boundsAlignH: "center", boundsAlignV: "middle", align:"center"}
+        {fontSize: '64px', align:"center"}
+    ).setOrigin(0.5);
+
+    const menuButton = this.add.text(
+        screenCenterX,
+        screenCenterY-130,
+        'Main Menu',
+        { fill: '#0f0', fontSize:'30px', align:"center"}
     );
+    menuButton
+        .setInteractive()
+        .on("pointerover", () => menuButton.setStyle({ fill: '#ff0'}))
+        .on('pointerout', () =>  menuButton.setStyle({ fill: '#0f0'}))
+        .on('pointerdown', () =>  this.scene.start("MainMenu"))
+        .setOrigin(0.5);
+
     const restartBtn = this.add.text(
-        screenCenterX-180,
-        screenCenterY-100,
+        screenCenterX,
+        screenCenterY-90,
         'Restart Game',
-        { fill: '#0f0', fontSize:'30px', boundsAlignH: "center", boundsAlignV: "middle", align:"center"}
+        { fill: '#0f0', fontSize:'30px', align:"center"}
     );
     restartBtn
         .setInteractive()
         .on("pointerover", () => restartBtn.setStyle({ fill: '#ff0'}))
         .on('pointerout', () =>  restartBtn.setStyle({ fill: '#0f0'}))
-        .on('pointerdown', () =>  this.restart());
-
-
-        const menuButton = this.add.text(
-            screenCenterX-180,
-            screenCenterY,
-            'Main Menu',
-            { fill: '#0f0', fontSize:'30px',  boundsAlignH: "center", boundsAlignV: "middle", align:"center"}
-        );
-        menuButton
-            .setInteractive()
-            .on("pointerover", () => menuButton.setStyle({ fill: '#ff0'}))
-            .on('pointerout', () =>  menuButton.setStyle({ fill: '#0f0'}))
-            .on('pointerdown', () =>  this.scene.start("MainMenu"));
-    
+        .on('pointerdown', () =>  this.restart())
+        .setOrigin(0.5);  
 }
 
 }

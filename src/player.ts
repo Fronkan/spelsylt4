@@ -3,13 +3,13 @@ import { Enemy } from './enemy';
 
 export class Player{
     private scene: Phaser.Scene;
-    private speed: number = 400;
+    private speed: number = 300;
     disabled: boolean = false;
     go: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
 
     constructor(scene: Phaser.Scene, depth:integer=1){
         this.scene = scene;
-        let go = this.scene.add.rectangle(200, 200, 30, 30, 0xFFFFFF);
+        let go = this.scene.add.rectangle(200, 200, 28, 28, 0xFFFFFF);
         go.setDepth(depth);
         this.scene.physics.add.existing(go);
         this.go = go as Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
