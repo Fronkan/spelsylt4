@@ -20,6 +20,9 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     width: window.innerWidth,
     height: window.innerHeight,
   },
+  audio: {
+    disableWebAudio: true
+  },
  
   parent: 'game',
   // backgroundColor: '#000000',

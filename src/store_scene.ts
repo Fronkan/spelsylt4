@@ -57,8 +57,6 @@ preload() {
     WorldSettings.enemyConfigs.forEach(
         p => this.load.json(p.name, `assets/paths/${p.name}.json`)
     );
-
-        
 }
 
 
@@ -184,12 +182,6 @@ public update(dt: number) {
             }
         }
     );
-
-    const esc = this.input.keyboard.addKey("esc");
-    if (esc.isDown && this.isRunning) {
-        this.restartScreen("Infected");
-    }
-    
 }
 
 private restartScreen(title: string) {

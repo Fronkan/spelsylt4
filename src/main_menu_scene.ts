@@ -17,10 +17,14 @@ constructor() {
 preload(){
     this.load.image("infectionRange","assets/main_menu/infection_range.png");
     this.load.image("pickups","assets/objects.png");
+    this.load.audio("theme", "assets/theme.ogg");
 }
 
 
 public create() {
+    const sound = this.sound.add("theme");
+    this.sound.play("theme", {"delay":0.5, "loop": true})
+    
     const centerX = this.cameras.main.centerX; 
     const centerY = this.cameras.main.centerY; 
     this.add.text(
@@ -40,7 +44,7 @@ public create() {
     this.add.text(
         centerX,
         centerY-100,
-        "Avoid getting to close to others shopping, the white circle is the infection range.",
+        "Avoid getting to close to other shoppers, the white circle is the infection range.",
         {fontSize:'19px', align:"center"}
     ).setOrigin(0.5);
     this.add.text(
@@ -59,6 +63,13 @@ public create() {
     this.add.text(
         centerX,
         centerY+130,
+        "Use the arrow-keys to navigate the store.",
+        {fontSize:'19px', align:"center"}
+    ).setOrigin(0.5);
+
+    this.add.text(
+        centerX,
+        centerY+160,
         "Everyting you will need:",
         {fontSize:'19px', align:"center"}
     ).setOrigin(0.5);
@@ -66,13 +77,13 @@ public create() {
     
     this.add.image(
         centerX,
-        centerY + 170,
+        centerY + 200,
         "pickups"
     )
 
     const playBtn = this.add.text(
         centerX,
-        centerY+ 250,
+        centerY+ 260,
         'Play Game',
         { fill: '#0f0', fontSize:'30px', align:"center"}
     );
